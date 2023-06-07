@@ -1,12 +1,18 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-const OptionBox = ({ title }) => {
+const OptionBox = ({ title, onPress }) => {
     return (
         <View style={styles.optionContainer}>
-            <View style={styles.optionContent}>
+            <Pressable
+                style={({ pressed }) => [
+                    styles.optionContent,
+                    pressed && { opacity: 0.6 },
+                ]}
+                onPress={onPress}
+            >
                 <Text>{title}</Text>
-            </View>
+            </Pressable>
         </View>
     );
 };

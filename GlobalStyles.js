@@ -8,6 +8,6 @@ export const globalStyles = StyleSheet.create({
     gridContainer: {
         alignItems: "flex-start",
         flexDirection: "row",
-        flexWrap: "wrap"
-    }
+        flexWrap: "wrap",
+    },
 });
