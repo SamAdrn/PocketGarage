@@ -5,7 +5,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { globalStyles } from "../GlobalStyles";
 import MainButton from "../components/MainButton";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import CarQueryApi from "../managers/CarQueryApiManager";
 
 const SearchModelFormScreen = ({ navigation }) => {
     const { register, handleSubmit, control } = useForm();
@@ -13,44 +13,26 @@ const SearchModelFormScreen = ({ navigation }) => {
 
     const [makeData, setMakeData] = useState([]);
 
-    const BASE_URL = "https://www.carqueryapi.com/api/0.3/?callback=?&";
-
-    const getMakes = async () => {
-        console.log("RUN GET MAKES");
-        const url = `${BASE_URL}cmd=getMakes`;
-
-        axios
-            .get(url)
-            .then((response) => {
-                const json = JSON.parse(
-                    response.data.replace(/^.*?\(/, "").replace(/\);?$/, "")
-                );
-                setMakeData(
-                    json["Makes"].map((make) => {
-                        return {
-                            key: make.make_id,
-                            value: make.make_display,
-                        };
-                    })
-                );
-            })
-            .catch((error) => {
-                Alert.alert(
-                    "Oops!",
-                    "An error has occurred. Please try again later.",
-                    [
-                        {
-                            text: "OK",
-                            onPress: () => {
-                                navigation.navigate("Home");
-                            },
-                        },
-                    ]
-                );
-            });
-    };
+    const errorAlert = () =>
+        Alert.alert("Oops!", "An error has occurred. Please try again later.", [
+            {
+                text: "OK",
+                onPress: () => {
+                    navigation.navigate("Home");
+                },
+            },
+        ]);
 
     useEffect(() => {
+        const getMakes = async () => {
+            try {
+                const data = await CarQueryApi.fetchMakes();
+                setMakeData(data);
+            } catch {
+                errorAlert();
+            }
+        };
+
         getMakes();
     }, []);
 
