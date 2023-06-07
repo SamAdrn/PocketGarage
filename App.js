@@ -14,6 +14,7 @@ export default function App() {
                 <Drawer.Screen
                     name="SearchModelStack"
                     component={SearchModelStack}
+                    options={{ title: "Search Models" }}
                 />
             </Drawer.Navigator>
         </NavigationContainer>

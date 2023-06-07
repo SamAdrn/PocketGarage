@@ -10,4 +10,7 @@ export const globalStyles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
     },
+    formContainer: {
+        justifyContent: "space-between",
+    },
 });
