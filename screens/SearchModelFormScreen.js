@@ -8,10 +8,11 @@ import { useState, useEffect } from "react";
 import CarQueryApi from "../managers/CarQueryApiManager";
 
 const SearchModelFormScreen = ({ navigation }) => {
-    const { register, handleSubmit, control } = useForm();
+    const { register, handleSubmit, control, getValues } = useForm();
     const onSubmit = (data) => console.log(data);
 
     const [makeData, setMakeData] = useState([]);
+    const [modelData, setModelData] = useState([]);
 
     const errorAlert = () =>
         Alert.alert("Oops!", "An error has occurred. Please try again later.", [
@@ -36,6 +37,15 @@ const SearchModelFormScreen = ({ navigation }) => {
         getMakes();
     }, []);
 
+    const getModels = async () => {
+        try {
+            const data = await CarQueryApi.fetchModels(getValues("Make"));
+            setModelData(data);
+        } catch {
+            errorAlert();
+        }
+    };
+
     return (
         <ScrollView style={globalStyles.container}>
             <View
@@ -46,6 +56,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                 <Controller
                     control={control}
                     name="Make"
+                    rules={{ required: true }}
                     render={({ field: { onChange } }) => (
                         <SelectList
                             data={makeData}
@@ -54,9 +65,28 @@ const SearchModelFormScreen = ({ navigation }) => {
                             placeholder="Make"
                             searchPlaceholder="Type here to search"
                             notFoundText="No Results"
+                            onSelect={getModels}
                         />
                     )}
                 />
+                {modelData.length == 0 ? (
+                    <View></View>
+                ) : (
+                    <Controller
+                        control={control}
+                        name="Model"
+                        render={({ field: { onChange } }) => (
+                            <SelectList
+                                data={modelData}
+                                save="value"
+                                setSelected={onChange}
+                                placeholder="Model"
+                                searchPlaceholder="Type here to search"
+                                notFoundText="No Results"
+                            />
+                        )}
+                    />
+                )}
                 <MainButton title="Search" onPress={handleSubmit(onSubmit)} />
             </View>
         </ScrollView>
