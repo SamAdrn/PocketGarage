@@ -7,6 +7,9 @@ import MainButton from "../components/MainButton";
 import { useState, useEffect } from "react";
 import CarQueryApi from "../managers/CarQueryApiManager";
 
+import initializeFirebase from "../firebase/config";
+import { ref, onValue, push, update, remove } from "firebase/database";
+
 const SearchModelFormScreen = ({ navigation }) => {
     const { register, handleSubmit, control, getValues } = useForm();
     const onSubmit = (data) => console.log(data);
@@ -24,7 +27,7 @@ const SearchModelFormScreen = ({ navigation }) => {
             },
         ]);
 
-    useEffect(() => {
+    useEffect(async () => {
         const getMakes = async () => {
             try {
                 const data = await CarQueryApi.fetchMakes();
@@ -35,6 +38,16 @@ const SearchModelFormScreen = ({ navigation }) => {
         };
 
         getMakes();
+
+        /*
+         * Firebase Tester Code, just to verify that it works.
+         */
+        const fb = await initializeFirebase();
+        const { db } = fb;
+        push(ref(db, "todos"), {
+            done: false,
+            title: "it works",
+        });
     }, []);
 
     const getModels = async () => {
