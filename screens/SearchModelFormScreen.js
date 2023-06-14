@@ -1,106 +1,99 @@
-import { StyleSheet, Text, View, ScrollView, Alert } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+    ScrollView,
+    Alert,
+} from "react-native";
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
 import { SelectList } from "react-native-dropdown-select-list";
 import { globalStyles } from "../GlobalStyles";
 import MainButton from "../components/MainButton";
 import { useState, useEffect } from "react";
 import CarQueryApi from "../managers/CarQueryApiManager";
-
-import initializeFirebase from "../firebase/config";
-import { ref, onValue, push, update, remove } from "firebase/database";
+import FirebaseManager from "../managers/FirebaseManager";
 
 const SearchModelFormScreen = ({ navigation }) => {
-    const { register, handleSubmit, control, getValues } = useForm();
-    const onSubmit = (data) => console.log(data);
+    const onSubmit = () => {
+        console.log("====================================");
+        console.log({
+            Make: selectedMake,
+            Model: selectedModel,
+        });
+        console.log("====================================");
+    };
 
     const [makeData, setMakeData] = useState([]);
     const [modelData, setModelData] = useState([]);
 
-    const errorAlert = () =>
-        Alert.alert("Oops!", "An error has occurred. Please try again later.", [
-            {
-                text: "OK",
-                onPress: () => {
-                    navigation.navigate("Home");
-                },
-            },
-        ]);
+    const [selectedMake, setSelectedMake] = useState("");
+    const [selectedModel, setSelectedModel] = useState("");
 
-    useEffect(async () => {
+    const errorAlert = (e) =>
+        Alert.alert(
+            "Oops!",
+            "An error has occurred. Please try again later.\n" + e,
+            [
+                {
+                    text: "OK",
+                    onPress: () => {
+                        navigation.navigate("Home");
+                    },
+                },
+            ]
+        );
+
+    useEffect(() => {
         const getMakes = async () => {
             try {
-                const data = await CarQueryApi.fetchMakes();
+                const data = await FirebaseManager.fetchMakes();
                 setMakeData(data);
-            } catch {
-                errorAlert();
+            } catch (e) {
+                errorAlert(e);
             }
         };
-
         getMakes();
-
-        /*
-         * Firebase Tester Code, just to verify that it works.
-         */
-        const fb = await initializeFirebase();
-        const { db } = fb;
-        push(ref(db, "todos"), {
-            done: false,
-            title: "it works",
-        });
     }, []);
 
     const getModels = async () => {
         try {
-            const data = await CarQueryApi.fetchModels(getValues("Make"));
+            const data = await CarQueryApi.fetchModels(selectedMake);
             setModelData(data);
-        } catch {
-            errorAlert();
+        } catch (e) {
+            errorAlert(e);
         }
     };
 
     return (
         <ScrollView style={globalStyles.container}>
-            <View
-                style={{
-                    gap: 20,
-                }}
-            >
-                <Controller
-                    control={control}
-                    name="Make"
-                    rules={{ required: true }}
-                    render={({ field: { onChange } }) => (
-                        <SelectList
-                            data={makeData}
-                            save="value"
-                            setSelected={onChange}
-                            placeholder="Make"
-                            searchPlaceholder="Type here to search"
-                            notFoundText="No Results"
-                            onSelect={getModels}
-                        />
-                    )}
-                />
-                {modelData.length == 0 ? (
+            <View style={styles.formContainer}>
+                {makeData && makeData.length == 0 ? (
                     <View></View>
                 ) : (
-                    <Controller
-                        control={control}
-                        name="Model"
-                        render={({ field: { onChange } }) => (
-                            <SelectList
-                                data={modelData}
-                                save="value"
-                                setSelected={onChange}
-                                placeholder="Model"
-                                searchPlaceholder="Type here to search"
-                                notFoundText="No Results"
-                            />
-                        )}
+                    <SelectList
+                        data={makeData}
+                        save="value"
+                        setSelected={setSelectedMake}
+                        placeholder="Make"
+                        searchPlaceholder="Type here to search"
+                        notFoundText="No Results"
+                        onSelect={getModels}
                     />
                 )}
-                <MainButton title="Search" onPress={handleSubmit(onSubmit)} />
+                {modelData && modelData.length == 0 ? (
+                    <View></View>
+                ) : (
+                    <SelectList
+                        data={modelData}
+                        save="value"
+                        setSelected={setSelectedModel}
+                        placeholder="Model"
+                        searchPlaceholder="Type here to search"
+                        notFoundText="No Results"
+                    />
+                )}
+                <MainButton title="Search" onPress={onSubmit} />
             </View>
         </ScrollView>
     );
@@ -108,4 +101,8 @@ const SearchModelFormScreen = ({ navigation }) => {
 
 export default SearchModelFormScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+    formContainer: {
+        gap: 20,
+    },
+});

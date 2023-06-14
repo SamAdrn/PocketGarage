@@ -20,18 +20,29 @@ class CarQueryApiManager {
             });
     }
 
-    async fetchMakes() {
-        const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes`;
+    async fetchYearRange() {
+        const url = `${CarQueryApiManager.BASE_URL}cmd=getYears`;
         try {
             const json = await this.fetchWithAxios(url);
-            return json["Makes"].map((make) => {
-                return {
-                    key: make.make_id,
-                    value: make.make_display,
-                };
-            });
-        } catch(e) {
-            throw new Error(e);
+            return json["Years"];
+        } catch (error) {
+            throw new Error(
+                "Error retrieving year range provided by the API",
+                error
+            );
+        }
+    }
+
+    async fetchMakes(year) {
+        const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes&year=${year}`;
+        try {
+            const json = await this.fetchWithAxios(url);
+            return json["Makes"];
+        } catch (error) {
+            throw new Error(
+                `Error retrieving makes in the specified year (${year})`,
+                error
+            );
         }
     }
 
@@ -47,8 +58,11 @@ class CarQueryApiManager {
                     value: model.model_name,
                 };
             });
-        } catch(e) {
-            throw new Error(e);
+        } catch (error) {
+            throw new Error(
+                `Error retrieving models of the specified make (${make})`,
+                error
+            );
         }
     }
 }

@@ -28,7 +28,7 @@ const initializeFirebase = async () => {
         const firebaseConfig = await getConfiguration();
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getDatabase(firebaseApp);
-        return { db };
+        return db;
     } catch (e) {
         throw new Error(e);
     }
