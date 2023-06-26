@@ -1,14 +1,16 @@
 import { StyleSheet, Text, Pressable } from "react-native";
 import React from "react";
 
-const MainButton = ({ title, onPress }) => {
+const MainButton = ({ title, onPress, disabled }) => {
     return (
         <Pressable
             style={({ pressed }) => [
                 styles.buttonContainer,
                 pressed && { opacity: 0.6 },
+                disabled && { opacity: 0.5 },
             ]}
             onPress={onPress}
+            disabled={disabled}
         >
             <Text style={styles.buttonContent}>{title}</Text>
         </Pressable>

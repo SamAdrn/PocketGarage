@@ -34,7 +34,9 @@ class CarQueryApiManager {
     }
 
     async fetchMakes(year) {
-        const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes&year=${year}`;
+        const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes${
+            year ? `&year=${year}` : ""
+        }`;
         try {
             const json = await this.fetchWithAxios(url);
             return json["Makes"];
@@ -61,6 +63,47 @@ class CarQueryApiManager {
         } catch (error) {
             throw new Error(
                 `Error retrieving models of the specified make (${make})`,
+                error
+            );
+        }
+    }
+
+    async fetchTrims(make, model) {
+        const url = `${CarQueryApiManager.BASE_URL}cmd=getTrims&full_results=0${
+            make ? `&make=${make}` : ""
+        }${model ? `&model=${model}` : ""}`;
+
+        if (!make || make == "" || !model || model == "") {
+            return { years: [], trims: [] };
+        }
+
+        try {
+            const json = await this.fetchWithAxios(url);
+            const year_list = [];
+            const trim_list = {};
+            for (const trim of json["Trims"]) {
+                if (!(trim.model_year in trim_list)) {
+                    year_list.push({
+                        key: Number(trim.model_year),
+                        value: trim.model_year,
+                    });
+                    trim_list[trim.model_year] = { options: [], ids: {} };
+                }
+
+                trim_list[trim.model_year].options.push({
+                    key: trim.model_id,
+                    value: trim.model_trim,
+                });
+
+                trim_list[trim.model_year].ids[trim.model_trim] = trim.model_id;
+            }
+
+            return { years: year_list, trims: trim_list };
+        } catch (error) {
+            console.error(error)
+            throw new Error(
+                `Error retrieving models of the specified model (${make} ${model}).` +
+                    `\nConnection: ${url}`,
                 error
             );
         }

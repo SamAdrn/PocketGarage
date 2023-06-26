@@ -1,12 +1,6 @@
 import initializeFirebase from "../firebase/config";
-import {
-    ref,
-    set,
-    get,
-    update,
-} from "firebase/database";
+import { ref, set, get, once } from "firebase/database";
 import CarQueryApi from "../managers/CarQueryApiManager";
-import { log } from "react-native-reanimated";
 
 class FirebaseManager {
     constructor() {
@@ -22,54 +16,34 @@ class FirebaseManager {
         }
     }
 
-    test() {
-        console.log("====================================");
-        console.log("TESTING");
-        console.log("====================================");
-        set(ref(this.db, "pol"), {
-            done: false,
-            title: "it works",
-        });
-    }
-
     async populateDatabaseMakes() {
         console.log("====================================");
-        console.log("POPULATING");
-        const { min_year, max_year } = await CarQueryApi.fetchYearRange();
-        for (let year = min_year; year <= max_year; year++) {
-            const makes = await CarQueryApi.fetchMakes(year);
+        console.log("POPULATING MAKES");
+        console.log(":: Fetching Makes");
+        const makes = await CarQueryApi.fetchMakes();
+        console.log(`:: Makes Fetched Successfully`);
 
-            for (const make of makes) {
-                const {
-                    make_country: country,
-                    make_display: display,
-                    make_id: id,
-                } = make;
+        for (const make of makes) {
+            console.log(`====:: Processing Make {${make.make_id}}`);
 
-                const curRef = ref(this.db, `cars/makes/${id}`);
-                const snap = await get(curRef);
+            const curRef = ref(this.db, `cars/makes/${make.make_id}`);
 
-                if (snap.exists()) {
-                    await update(curRef, { ...snap.val(), max_year: year });
-                } else {
-                    await set(curRef, {
-                        id,
-                        display,
-                        country,
-                        min_year: Number(year),
-                        max_year: Number(year),
-                    });
-                }
-            }
+            await set(curRef, {
+                id: make.make_id,
+                display: make.make_display,
+                country: make.make_country,
+            });
+
+            console.log(
+                `===!:: SUCCESSFULLY Added to Database {${make.make_id}}`
+            );
         }
 
         console.log("====================================");
     }
 
     async fetchMakes() {
-        console.log("====================================");
-        console.log("FETCHING MAKES");
-        const makesRef = ref(this.db, "cars/makes")
+        const makesRef = ref(this.db, "cars/makes");
 
         const data = await get(makesRef)
             .then((snap) => {
@@ -83,14 +57,9 @@ class FirebaseManager {
                 return makes;
             })
             .catch((error) => {
-                console.log("YALO");
-                throw new Error(
-                    `Error retrieving makes from Firebase`,
-                    error
-                );
+                throw new Error(`Error retrieving makes from Firebase`, error);
             });
 
-        console.log("====================================");
         return data;
     }
 }
