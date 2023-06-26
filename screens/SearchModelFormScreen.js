@@ -17,6 +17,10 @@ const SearchModelFormScreen = ({ navigation }) => {
             Trim: selectedTrim,
         });
         console.log("====================================");
+        if (selectedYear !== "-1" && selectedTrim !== "-1") {
+            const id = allTrims[selectedYear].ids[selectedTrim];
+            console.log(id);
+        }
     };
 
     const [rerenderModels, setRerenderModels] = useState(false);
@@ -34,6 +38,8 @@ const SearchModelFormScreen = ({ navigation }) => {
     const [selectedModel, setSelectedModel] = useState("");
     const [selectedYear, setSelectedYear] = useState("-1");
     const [selectedTrim, setSelectedTrim] = useState("-1");
+
+    const [selectedMakeID, setSelectedMakeID] = useState("");
 
     const errorAlert = (e) =>
         Alert.alert(
@@ -67,10 +73,23 @@ const SearchModelFormScreen = ({ navigation }) => {
         console.log("SELECT MAKE");
         console.log("====================================");
         try {
+            const foundMake = makeData.find((m) => m.value === selectedMake);
+
             setSelectedModel("");
-            setRerenderModels((t) => !t);
-            const data = await CarQueryApi.fetchModels(selectedMake);
+            setSelectedYear("-1");
+            setSelectedTrim("-1");
+            setModelData([]);
+            setYearData([]);
+            setAllTrims({});
+            setTrimData([]);
+
+            const data = await CarQueryApi.fetchModels(foundMake.key);
             setModelData(data);
+
+            setRerenderModels((t) => !t);
+            setRerenderYears((t) => !t);
+            setRerenderTrims((t) => !t);
+            setSelectedMakeID(foundMake.key)
         } catch (e) {
             errorAlert(e);
         }
@@ -83,13 +102,12 @@ const SearchModelFormScreen = ({ navigation }) => {
         try {
             setSelectedYear("-1");
             setSelectedTrim("-1");
+            setYearData([]);
             setAllTrims({});
             setTrimData([]);
-            setRerenderYears((t) => !t);
-            setRerenderTrims((t) => !t);
 
             const data = await CarQueryApi.fetchTrims(
-                selectedMake,
+                selectedMakeID,
                 selectedModel
             );
 
@@ -101,6 +119,8 @@ const SearchModelFormScreen = ({ navigation }) => {
 
             setYearData(data.years);
             setAllTrims(data.trims);
+            setRerenderYears((t) => !t);
+            setRerenderTrims((t) => !t);
         } catch (e) {
             errorAlert(e);
         }
@@ -114,7 +134,6 @@ const SearchModelFormScreen = ({ navigation }) => {
         setRerenderTrims((t) => !t);
 
         console.log(selectedYear);
-        console.log(typeof selectedYear);
 
         if (selectedYear !== "-1") {
             setTrimData(allTrims[selectedYear].options);

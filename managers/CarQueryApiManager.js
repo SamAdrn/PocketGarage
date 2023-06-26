@@ -33,6 +33,8 @@ class CarQueryApiManager {
         }
     }
 
+    // Only for use in FirebaseManager. 
+    // For display, refer to FirebaseManager.fetchMakes().
     async fetchMakes(year) {
         const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes${
             year ? `&year=${year}` : ""
@@ -49,9 +51,11 @@ class CarQueryApiManager {
     }
 
     async fetchModels(make) {
+        console.log(typeof make);
         const url = `${CarQueryApiManager.BASE_URL}cmd=getModels${
             make ? `&make=${make}` : ""
         }`;
+        console.log(url);
         try {
             const json = await this.fetchWithAxios(url);
             return json["Models"].map((model, i) => {
@@ -72,6 +76,7 @@ class CarQueryApiManager {
         const url = `${CarQueryApiManager.BASE_URL}cmd=getTrims&full_results=0${
             make ? `&make=${make}` : ""
         }${model ? `&model=${model}` : ""}`;
+        console.log(url);
 
         if (!make || make == "" || !model || model == "") {
             return { years: [], trims: [] };
@@ -90,17 +95,19 @@ class CarQueryApiManager {
                     trim_list[trim.model_year] = { options: [], ids: {} };
                 }
 
+                const trim_display = trim.model_trim || "Base";
+
                 trim_list[trim.model_year].options.push({
                     key: trim.model_id,
-                    value: trim.model_trim,
+                    value: trim_display,
                 });
 
-                trim_list[trim.model_year].ids[trim.model_trim] = trim.model_id;
+                trim_list[trim.model_year].ids[trim_display] = trim.model_id;
             }
 
             return { years: year_list, trims: trim_list };
         } catch (error) {
-            console.error(error)
+            console.error(error);
             throw new Error(
                 `Error retrieving models of the specified model (${make} ${model}).` +
                     `\nConnection: ${url}`,
