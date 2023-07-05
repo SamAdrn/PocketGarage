@@ -33,7 +33,7 @@ class CarQueryApiManager {
         }
     }
 
-    // Only for use in FirebaseManager. 
+    // Only for use in FirebaseManager.
     // For display, refer to FirebaseManager.fetchMakes().
     async fetchMakes(year) {
         const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes${
@@ -51,11 +51,9 @@ class CarQueryApiManager {
     }
 
     async fetchModels(make) {
-        console.log(typeof make);
         const url = `${CarQueryApiManager.BASE_URL}cmd=getModels${
             make ? `&make=${make}` : ""
         }`;
-        console.log(url);
         try {
             const json = await this.fetchWithAxios(url);
             return json["Models"].map((model, i) => {
@@ -110,6 +108,21 @@ class CarQueryApiManager {
             console.error(error);
             throw new Error(
                 `Error retrieving models of the specified model (${make} ${model}).` +
+                    `\nConnection: ${url}`,
+                error
+            );
+        }
+    }
+
+    async fetchModelDetails(modelId) {
+        const url = `${CarQueryApiManager.BASE_URL}cmd=getModel&model=${modelId}`;
+        try {
+            const json = await this.fetchWithAxios(url);
+            return json[0];
+        } catch (error) {
+            console.error(error);
+            throw new Error(
+                `Error retrieving the specified model (id ${modelId}).` +
                     `\nConnection: ${url}`,
                 error
             );

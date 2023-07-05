@@ -1,7 +1,7 @@
 import { StyleSheet, Text, Pressable } from "react-native";
 import React from "react";
 
-const MainButton = ({ title, onPress, disabled }) => {
+const MainButton = ({ title, onPress, disabled = false }) => {
     return (
         <Pressable
             style={({ pressed }) => [
@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
     buttonContent: {
         color: "white",
         fontWeight: "bold",
-        fontSize: 19
-    }
+        fontSize: 19,
+    },
 });

@@ -8,20 +8,6 @@ import CarQueryApi from "../managers/CarQueryApiManager";
 import FirebaseManager from "../managers/FirebaseManager";
 
 const SearchModelFormScreen = ({ navigation }) => {
-    const onSubmit = () => {
-        console.log("====================================");
-        console.log({
-            Make: selectedMake,
-            Model: selectedModel,
-            Year: selectedYear,
-            Trim: selectedTrim,
-        });
-        console.log("====================================");
-        if (selectedYear !== "-1" && selectedTrim !== "-1") {
-            const id = allTrims[selectedYear].ids[selectedTrim];
-            console.log(id);
-        }
-    };
 
     const [rerenderModels, setRerenderModels] = useState(false);
     const [rerenderYears, setRerenderYears] = useState(false);
@@ -59,7 +45,6 @@ const SearchModelFormScreen = ({ navigation }) => {
         const getMakes = async () => {
             try {
                 const data = await FirebaseManager.fetchMakes();
-                // const data = await CarQueryApi.fetchMakes2();
                 setMakeData(data);
             } catch (e) {
                 errorAlert(e);
@@ -69,9 +54,6 @@ const SearchModelFormScreen = ({ navigation }) => {
     }, []);
 
     const onSelectMake = async () => {
-        console.log("====================================");
-        console.log("SELECT MAKE");
-        console.log("====================================");
         try {
             const foundMake = makeData.find((m) => m.value === selectedMake);
 
@@ -89,33 +71,26 @@ const SearchModelFormScreen = ({ navigation }) => {
             setRerenderModels((t) => !t);
             setRerenderYears((t) => !t);
             setRerenderTrims((t) => !t);
-            setSelectedMakeID(foundMake.key)
+            setSelectedMakeID(foundMake.key);
         } catch (e) {
             errorAlert(e);
         }
     };
 
     const onSelectModel = async () => {
-        console.log("====================================");
-        console.log("SELECT MODEL");
-        console.log("====================================");
         try {
             setSelectedYear("-1");
             setSelectedTrim("-1");
             setYearData([]);
             setAllTrims({});
             setTrimData([]);
+            setRerenderYears((t) => !t);
+            setRerenderTrims((t) => !t);
 
             const data = await CarQueryApi.fetchTrims(
                 selectedMakeID,
                 selectedModel
             );
-
-            console.log("====================================");
-            console.log("ALL YEAR OPTIONS");
-            console.log(data.years);
-            console.log("ALL YEAR OPTIONS");
-            console.log("====================================");
 
             setYearData(data.years);
             setAllTrims(data.trims);
@@ -127,21 +102,27 @@ const SearchModelFormScreen = ({ navigation }) => {
     };
 
     const onSelectYear = async () => {
-        console.log("====================================");
-        console.log("SELECT YEAR");
-        console.log("====================================");
         setSelectedTrim("-1");
         setRerenderTrims((t) => !t);
 
-        console.log(selectedYear);
-
         if (selectedYear !== "-1") {
             setTrimData(allTrims[selectedYear].options);
-            console.log("====================================");
-            console.log("ALL TRIM OPTIONS");
-            console.log(allTrims[selectedYear].options);
-            console.log("ALL TRIM OPTIONS");
-            console.log("====================================");
+        }
+    };
+
+    const onSubmit = async () => {
+        console.log("====================================");
+        console.log({
+            Make: selectedMake,
+            Model: selectedModel,
+            Year: selectedYear,
+            Trim: selectedTrim,
+        });
+        console.log("====================================");
+        if (selectedYear !== "-1" && selectedTrim !== "-1") {
+            const id = allTrims[selectedYear].ids[selectedTrim];
+            const model = await CarQueryApi.fetchModelDetails(id);
+            navigation.navigate("ModelScreen", { model: model });
         }
     };
 
