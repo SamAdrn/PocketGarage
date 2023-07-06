@@ -11,6 +11,6 @@ export const globalStyles = StyleSheet.create({
         flexWrap: "wrap",
     },
     formContainer: {
-        justifyContent: "space-between",
+        gap: 30,
     },
 });

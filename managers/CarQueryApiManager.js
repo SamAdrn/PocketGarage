@@ -36,9 +36,7 @@ class CarQueryApiManager {
     // Only for use in FirebaseManager.
     // For display, refer to FirebaseManager.fetchMakes().
     async fetchMakes(year) {
-        const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes${
-            year ? `&year=${year}` : ""
-        }`;
+        const url = `${CarQueryApiManager.BASE_URL}cmd=getMakes`;
         try {
             const json = await this.fetchWithAxios(url);
             return json["Makes"];
@@ -51,9 +49,8 @@ class CarQueryApiManager {
     }
 
     async fetchModels(make) {
-        const url = `${CarQueryApiManager.BASE_URL}cmd=getModels${
-            make ? `&make=${make}` : ""
-        }`;
+        const url =
+            `${CarQueryApiManager.BASE_URL}cmd=getModels` + `&make=${make}`;
         try {
             const json = await this.fetchWithAxios(url);
             return json["Models"];
@@ -66,13 +63,11 @@ class CarQueryApiManager {
     }
 
     async fetchTrims(make, model) {
-        const url = `${CarQueryApiManager.BASE_URL}cmd=getTrims&full_results=0${
-            make ? `&make=${make}` : ""
-        }${model ? `&model=${model}` : ""}`;
-
-        if (!make || make == "" || !model || model == "") {
-            return { years: [], trims: [] };
-        }
+        const url =
+            `${CarQueryApiManager.BASE_URL}cmd=getTrims&` +
+            `full_results=0` +
+            `&make=${make}` +
+            `&model=${model}`;
 
         try {
             const json = await this.fetchWithAxios(url);
@@ -99,7 +94,33 @@ class CarQueryApiManager {
         } catch (error) {
             console.error(error);
             throw new Error(
-                `Error retrieving models of the specified model (${make} ${model}).` +
+                `Error retrieving models of the specified model ` +
+                    `(${make} ${model}).` +
+                    `\nConnection: ${url}`,
+                error
+            );
+        }
+    }
+
+    async fetchModelList(make, model, year) {
+        const url =
+            `${CarQueryApiManager.BASE_URL}cmd=getTrims&` +
+            `full_results=1` +
+            `&make=${make}` +
+            `&model=${model}` +
+            `${year ? `&year=${year}` : ""}`;
+
+        try {
+            const json = await this.fetchWithAxios(url);
+            console.log("====================================");
+            console.log(json);
+            console.log("====================================");
+            return json["Trims"];
+        } catch (error) {
+            console.error(error);
+            throw new Error(
+                `Error retrieving models of the specified model ` +
+                    `(${make} ${model} ${year}).` +
                     `\nConnection: ${url}`,
                 error
             );
@@ -107,7 +128,8 @@ class CarQueryApiManager {
     }
 
     async fetchModelDetails(modelId) {
-        const url = `${CarQueryApiManager.BASE_URL}cmd=getModel&model=${modelId}`;
+        const url =
+            `${CarQueryApiManager.BASE_URL}cmd=getModel` + `&model=${modelId}`;
         try {
             const json = await this.fetchWithAxios(url);
             return json[0];
@@ -119,6 +141,72 @@ class CarQueryApiManager {
                 error
             );
         }
+    }
+
+    fuelType(model, simplified = false) {
+        return /electric/i.test(model.model_engine_type)
+            ? simplified
+                ? "EV"
+                : "Electric"
+            : simplified
+            ? "Gas"
+            : "Gasoline";
+    }
+
+    drivetrainType(model, simplified = false, includeEngine = false) {
+        let drive = /front/i.test(model.model_drive)
+            ? simplified
+                ? "FWD"
+                : "Front-Wheel Drive"
+            : /rear/i.test(model.model_drive)
+            ? simplified
+                ? "RWD"
+                : "Rear-Wheel Drive"
+            : /four/i.test(model.model_drive)
+            ? simplified
+                ? "4WD"
+                : "Four-Wheel Drive"
+            : simplified
+            ? "AWD"
+            : "All Wheel Drive";
+
+        if (includeEngine) {
+            const pos = /front/i.test(model.model_engine_position)
+                ? simplified
+                    ? "F"
+                    : "Front-Engined"
+                : /rear/i.test(model.model_engine_position)
+                ? simplified
+                    ? "R"
+                    : "Rear-Engined"
+                : simplified
+                ? "M"
+                : "Mid-Engined";
+            drive = simplified ? `${pos}${drive[0]}` : `${pos}, ${drive}`;
+        }
+        return drive;
+    }
+
+    engineConfiguration(model, simplified = false) {
+        return /in/i.test(model.model_engine_type)
+            ? simplified
+                ? `I${model.model_engine_cyl}`
+                : `Inline-${model.model_engine_cyl}`
+            : /flat/i.test(model.model_engine_type)
+            ? simplified
+                ? `F${model.model_engine_cyl}`
+                : `Flat-${model.model_engine_cyl}`
+            : `${model.model_engine_type}${model.model_engine_cyl}`;
+    }
+
+    transmission(model, simplified = false) {
+        return /auto/i.test(model.model_transmission_type)
+            ? simplified
+                ? "Auto"
+                : "Automatic"
+            : simplified
+            ? "Man"
+            : "Manual";
     }
 }
 

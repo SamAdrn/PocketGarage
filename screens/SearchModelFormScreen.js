@@ -22,15 +22,13 @@ const SearchModelFormScreen = ({ navigation }) => {
     const [selectedTrim, setSelectedTrim] = useState("-1");
 
     const [makeOpen, setMakeOpen] = useState(false);
-    const [makeLoading, setMakeLoading] = useState(false);
-
     const [modelOpen, setModelOpen] = useState(false);
-    const [modelLoading, setModelLoading] = useState(false);
-
     const [yearOpen, setYearOpen] = useState(false);
-    const [yearLoading, setYearLoading] = useState(false);
-
     const [trimOpen, setTrimOpen] = useState(false);
+
+    const [makeLoading, setMakeLoading] = useState(false);
+    const [modelLoading, setModelLoading] = useState(false);
+    const [yearLoading, setYearLoading] = useState(false);
     const [trimLoading, setTrimLoading] = useState(false);
 
     const errorAlert = (e) =>
@@ -120,15 +118,25 @@ const SearchModelFormScreen = ({ navigation }) => {
             Trim: selectedTrim,
         });
         console.log("====================================");
-        if (selectedYear !== "-1" && selectedTrim !== "-1") {
+        if (selectedTrim !== "-1") {
             const model = await CarQueryApi.fetchModelDetails(selectedTrim);
-            navigation.navigate("ModelScreen", { model: model });
+            navigation.navigate("ModelDisplay", { model: model });
+        } else {
+            const data = await CarQueryApi.fetchModelList(
+                selectedMake,
+                selectedModel,
+                selectedYear
+            );
+            const title =
+                `All ${selectedYear == "-1" ? "" : selectedYear + " "}` +
+                `${selectedModel} Models`;
+            navigation.navigate("ModelList", { data: data, title: title });
         }
     };
 
     return (
         <View style={globalStyles.container}>
-            <View style={styles.formContainer}>
+            <View style={globalStyles.formContainer}>
                 {/* Make Dropdown */}
                 <DropDownPicker
                     open={makeOpen}
@@ -155,9 +163,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                     onSelectItem={onSelectMake}
                 />
                 {/* Model Dropdown */}
-                {selectedMake == "" ? (
-                    <View></View>
-                ) : (
+                {selectedMake == "" ? null : (
                     <DropDownPicker
                         schema={{
                             label: "model_name",
@@ -188,9 +194,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                     />
                 )}
                 {/* Year Dropdown */}
-                {selectedModel == "" ? (
-                    <View></View>
-                ) : (
+                {selectedModel == "" ? null : (
                     <DropDownPicker
                         schema={{
                             label: "value",
@@ -202,7 +206,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                         setOpen={setYearOpen}
                         setValue={setSelectedYear}
                         loading={yearLoading}
-                        placeholder="Year"
+                        placeholder="All Years"
                         searchable="true"
                         searchPlaceholder="Type here to search"
                         style={styles.dropdownStyle}
@@ -220,10 +224,8 @@ const SearchModelFormScreen = ({ navigation }) => {
                         onSelectItem={onSelectYear}
                     />
                 )}
-                {/* Year Dropdown */}
-                {selectedYear == "-1" ? (
-                    <View></View>
-                ) : (
+                {/* Trim Dropdown */}
+                {selectedYear == "-1" ? null : (
                     <DropDownPicker
                         schema={{
                             label: "value",
@@ -270,10 +272,7 @@ const SearchModelFormScreen = ({ navigation }) => {
 export default SearchModelFormScreen;
 
 const styles = StyleSheet.create({
-    formContainer: {
-        gap: 20,
-        position: "relative",
-    },
+    formContainer: {},
 
     dropdownStyle: {
         backgroundColor: "#f8f9fa",

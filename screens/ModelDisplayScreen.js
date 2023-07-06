@@ -2,7 +2,8 @@ import { Platform, StyleSheet, Text, ScrollView, View } from "react-native";
 import React from "react";
 import { globalStyles } from "../GlobalStyles";
 import MainButton from "../components/MainButton";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import CarQueryApi from "../managers/CarQueryApiManager";
 import {
     material,
     robotoWeights,
@@ -14,36 +15,13 @@ import {
 
 const ModelDisplayScreen = ({ route, navigation }) => {
     const { model } = route.params;
+
     useEffect(() => {
         console.log("====================================");
         console.log("PARAMS ROUTE");
         console.log(model);
         console.log("====================================");
     }, []);
-
-    const fuelType = () => {
-        return /electric/i.test(model.model_engine_type)
-            ? "Electric"
-            : "Gasoline";
-    };
-
-    const drivetrainType = () => {
-        return /front/i.test(model.model_drive)
-            ? "Front-Wheel Drive"
-            : /rear/i.test(model.model_drive)
-            ? "Rear-Wheel Drive"
-            : "All Wheel Drive";
-    };
-
-    const engineConfiguration = () => {
-        if (/in/i.test(model.model_engine_type)) {
-            return `Inline-${model.model_engine_cyl}`;
-        } else if (/flat/i.test(model.model_engine_type)) {
-            return `Flat-${model.model_engine_cyl}`;
-        } else {
-            return `${model.model_engine_type}${model.model_engine_cyl}`;
-        }
-    };
 
     return (
         <ScrollView>
@@ -87,7 +65,9 @@ const ModelDisplayScreen = ({ route, navigation }) => {
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.infoTitle}>Fuel Type</Text>
-                        <Text style={styles.info}>{fuelType()}</Text>
+                        <Text style={styles.info}>
+                            {CarQueryApi.fuelType(model)}
+                        </Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.infoTitle}>Transmission</Text>
@@ -103,7 +83,9 @@ const ModelDisplayScreen = ({ route, navigation }) => {
                 <View style={globalStyles.gridContainer}>
                     <View style={styles.row}>
                         <Text style={styles.infoTitle}>Drivetrain</Text>
-                        <Text style={styles.info}>{drivetrainType()}</Text>
+                        <Text style={styles.info}>
+                            {CarQueryApi.drivetrainType(model)}
+                        </Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.infoTitle}>Engine Position</Text>
@@ -215,7 +197,9 @@ const ModelDisplayScreen = ({ route, navigation }) => {
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.infoTitle}>Configuration</Text>
-                        <Text style={styles.info}>{engineConfiguration()}</Text>
+                        <Text style={styles.info}>
+                            {CarQueryApi.engineConfiguration(model)}
+                        </Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.infoTitle}>Valves (per cyl)</Text>
