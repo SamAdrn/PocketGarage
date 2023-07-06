@@ -36,9 +36,13 @@ const ModelDisplayScreen = ({ route, navigation }) => {
     };
 
     const engineConfiguration = () => {
-        return /in/i.test(model.model_engine_type)
-            ? `Inline-${model.model_engine_cyl}`
-            : `${model.model_engine_type}${model.model_engine_cyl}`;
+        if (/in/i.test(model.model_engine_type)) {
+            return `Inline-${model.model_engine_cyl}`;
+        } else if (/flat/i.test(model.model_engine_type)) {
+            return `Flat-${model.model_engine_cyl}`;
+        } else {
+            return `${model.model_engine_type}${model.model_engine_cyl}`;
+        }
     };
 
     return (
@@ -281,9 +285,12 @@ const ModelDisplayScreen = ({ route, navigation }) => {
                 </View>
             </View>
 
-            <MainButton title={"Back"} onPress={() => navigation.goBack()}/>
-            <View style={{ height: 100 }}></View>
-            
+            <View style={styles.buttonContainer}>
+                <MainButton
+                    title={"Back"}
+                    onPress={() => navigation.goBack()}
+                />
+            </View>
         </ScrollView>
     );
 };
@@ -353,12 +360,10 @@ const styles = StyleSheet.create({
             ios: {
                 ...iOSUIKit.caption2Emphasized,
                 ...sanFranciscoWeights.regular,
-                // color: iOSColors.gray,
                 paddingBottom: 10,
             },
             android: {
                 ...material.body1,
-                // ...robotoWeights.light,
                 paddingBottom: 5,
             },
         }),
@@ -376,5 +381,11 @@ const styles = StyleSheet.create({
                 color: materialColors.blackPrimary,
             },
         }),
+    },
+
+    buttonContainer: {
+        paddingTop: 30,
+        paddingHorizontal: 30,
+        paddingBottom: 100,
     },
 });

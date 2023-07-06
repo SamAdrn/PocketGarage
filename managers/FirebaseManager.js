@@ -50,8 +50,8 @@ class FirebaseManager {
                 const makes = [];
                 snap.forEach((s) => {
                     makes.push({
-                        key: s.key,
-                        value: s.val().display,
+                        label: s.val().display,
+                        value: s.key,
                     });
                 });
                 return makes;

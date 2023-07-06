@@ -56,12 +56,7 @@ class CarQueryApiManager {
         }`;
         try {
             const json = await this.fetchWithAxios(url);
-            return json["Models"].map((model, i) => {
-                return {
-                    key: i,
-                    value: model.model_name,
-                };
-            });
+            return json["Models"];
         } catch (error) {
             throw new Error(
                 `Error retrieving models of the specified make (${make})`,
@@ -74,7 +69,6 @@ class CarQueryApiManager {
         const url = `${CarQueryApiManager.BASE_URL}cmd=getTrims&full_results=0${
             make ? `&make=${make}` : ""
         }${model ? `&model=${model}` : ""}`;
-        console.log(url);
 
         if (!make || make == "" || !model || model == "") {
             return { years: [], trims: [] };
@@ -90,17 +84,15 @@ class CarQueryApiManager {
                         key: Number(trim.model_year),
                         value: trim.model_year,
                     });
-                    trim_list[trim.model_year] = { options: [], ids: {} };
+                    trim_list[trim.model_year] = [];
                 }
 
                 const trim_display = trim.model_trim || "Base";
 
-                trim_list[trim.model_year].options.push({
+                trim_list[trim.model_year].push({
                     key: trim.model_id,
                     value: trim_display,
                 });
-
-                trim_list[trim.model_year].ids[trim_display] = trim.model_id;
             }
 
             return { years: year_list, trims: trim_list };
