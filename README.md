@@ -32,7 +32,7 @@ Developed using the [Expo](https://expo.dev/) framework.
 
 All vehicle information is retrieved from the [CarQuery API](https://www.carqueryapi.com/).
 
-Check out [React Native Dropdown Picker by hossein-zare](https://github.com/hossein-zare/react-native-dropdown-picker) for the simplistic dropdowns and [React Native Typography by hectahertz](https://github.com/hectahertz/react-native-typography)https://github.com/hectahertz/react-native-typography for the beautiful fonts.
+Check out [React Native Dropdown Picker by hossein-zare](https://github.com/hossein-zare/react-native-dropdown-picker) for the simplistic dropdowns and [React Native Typography by hectahertz](https://github.com/hectahertz/react-native-typography) for the beautiful fonts.
 
 ## Known Issues
 
