@@ -112,9 +112,6 @@ class CarQueryApiManager {
 
         try {
             const json = await this.fetchWithAxios(url);
-            console.log("====================================");
-            console.log(json);
-            console.log("====================================");
             return json["Trims"];
         } catch (error) {
             console.error(error);

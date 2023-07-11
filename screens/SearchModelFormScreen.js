@@ -6,7 +6,6 @@ import MainButton from "../components/MainButton";
 import { useState, useEffect } from "react";
 import CarQueryApi from "../managers/CarQueryApiManager";
 import FirebaseManager from "../managers/FirebaseManager";
-import { material, iOSUIKit } from "react-native-typography";
 
 const SearchModelFormScreen = ({ navigation }) => {
     const [makeData, setMakeData] = useState([]);
@@ -87,8 +86,6 @@ const SearchModelFormScreen = ({ navigation }) => {
             setAllTrims({});
             setTrimData([]);
 
-            console.log(model);
-
             const data = await CarQueryApi.fetchTrims(
                 selectedMake,
                 model.model_name
@@ -109,15 +106,21 @@ const SearchModelFormScreen = ({ navigation }) => {
         setTrimLoading(false);
     };
 
-    const onSubmit = async () => {
-        console.log("====================================");
-        console.log({
-            Make: selectedMake,
-            Model: selectedModel,
-            Year: selectedYear,
-            Trim: selectedTrim,
+    const onOpenPicker = (picker) => {
+        const pickers = {
+            make: setMakeOpen,
+            model: setModelOpen,
+            year: setYearOpen,
+            trim: setTrimOpen,
+        };
+
+        Object.keys(pickers).forEach((key) => {
+            const setter = pickers[key];
+            setter(key === picker ? (t) => !t : false);
         });
-        console.log("====================================");
+    };
+
+    const onSubmit = async () => {
         if (selectedTrim !== "-1") {
             const model = await CarQueryApi.fetchModelDetails(selectedTrim);
             navigation.navigate("ModelDisplay", { model: model });
@@ -142,7 +145,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                     open={makeOpen}
                     value={selectedMake}
                     items={makeData}
-                    setOpen={setMakeOpen}
+                    setOpen={() => onOpenPicker("make")}
                     setValue={setSelectedMake}
                     loading={makeLoading}
                     placeholder="Make"
@@ -172,7 +175,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                         open={modelOpen}
                         value={selectedModel}
                         items={modelData}
-                        setOpen={setModelOpen}
+                        setOpen={() => onOpenPicker("model")}
                         setValue={setSelectedModel}
                         loading={modelLoading}
                         placeholder="Model"
@@ -203,7 +206,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                         open={yearOpen}
                         value={selectedYear}
                         items={yearData}
-                        setOpen={setYearOpen}
+                        setOpen={() => onOpenPicker("year")}
                         setValue={setSelectedYear}
                         loading={yearLoading}
                         placeholder="All Years"
@@ -234,7 +237,7 @@ const SearchModelFormScreen = ({ navigation }) => {
                         open={trimOpen}
                         value={selectedTrim}
                         items={trimData}
-                        setOpen={setTrimOpen}
+                        setOpen={() => onOpenPicker("trim")}
                         setValue={setSelectedTrim}
                         loading={trimLoading}
                         placeholder="All Trims"
@@ -288,25 +291,11 @@ const styles = StyleSheet.create({
     },
 
     dropdownTextStyle: {
-        ...Platform.select({
-            ios: {
-                ...iOSUIKit.subhead,
-            },
-            android: {
-                ...material.title,
-            },
-        }),
+        ...globalStyles.subBody,
     },
 
     dropdownLabelStyle: {
-        ...Platform.select({
-            ios: {
-                ...iOSUIKit.subhead,
-            },
-            android: {
-                ...material.title,
-            },
-        }),
+        ...globalStyles.subBody,
     },
 
     selectedItemContainerStyle: {

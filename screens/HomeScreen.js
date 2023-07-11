@@ -11,8 +11,10 @@ const HomeScreen = ({ navigation }) => {
                     title="Search Specific Models"
                     onPress={() => navigation.navigate("SearchModelStack")}
                 />
-                <OptionBox title="Browse Cars" />
-                <OptionBox title="VIN Decoder" />
+                <OptionBox
+                    title="About"
+                    onPress={() => navigation.navigate("AboutScreen")}
+                />
             </View>
         </View>
     );
